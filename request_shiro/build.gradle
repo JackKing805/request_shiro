@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.jerry.request_shiro'
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 26
+        targetSdk 33
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+
+    //jwt
+    implementation 'com.auth0:java-jwt:4.2.2'
+
+    //server
+    implementation 'com.github.JackKing805:RtCore:0.2.3'
+    implementation 'com.github.JackKing805:request_base:0.0.8'
+    implementation 'com.github.JackKing805:request_core:0.2.0'
+
+
+    implementation 'com.blankj:utilcodex:1.31.1'
+}
