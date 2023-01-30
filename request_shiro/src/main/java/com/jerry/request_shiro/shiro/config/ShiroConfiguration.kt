@@ -15,7 +15,7 @@ class ShiroConfiguration {
         return RtConfig(rtSessionConfig = RtSessionConfig(
             sessionClazz = ShiroSessionManager::class.java,
             sessionKey = "SHIRO_SESSION_ID",
-            sessionValidTime = Duration.ofMinutes(1)
+            sessionValidTime = Duration.ofMinutes(15)
         ))
     }
 }

@@ -12,6 +12,8 @@ import java.time.Duration
 import java.util.UUID
 
 object ShiroUtils {
+    internal const val SHIRO_TOKEN = "ShiroToken"
+
     internal var iShiroAuth: IShiroAuth = object :IShiroAuth{
         override fun onAuthentication(authToken: AuthToken): AuthenticationInfo {
             return AuthenticationInfo(authToken,authToken.getPassword(),UUID.randomUUID().toString())
@@ -41,7 +43,7 @@ object ShiroUtils {
 
         session.setAttribute("shiro_token",ShiroToken(onAuthorization,onAuthentication))
 
-        userLoginToken.getResponse().addCookie(Cookie(Core.getRtConfig().rtSessionConfig.sessionKey, value = onAuthentication.token, maxAge = (Core.getRtConfig().rtSessionConfig.sessionValidTime.toMillis()/1000).toInt()))
+        userLoginToken.getResponse().addCookie(Cookie(SHIRO_TOKEN, value = onAuthentication.token, maxAge = (Core.getRtConfig().rtSessionConfig.sessionValidTime.toMillis()/1000).toInt()))
         return onAuthentication.token
     }
 

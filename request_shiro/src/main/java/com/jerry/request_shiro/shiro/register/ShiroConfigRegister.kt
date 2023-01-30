@@ -50,8 +50,9 @@ class ShiroConfigRegister : IConfig() {
             return true
         }
 
-        val shiroToken = request.getPackage().getSession().getAttribute("shiro_token") as ShiroToken
-        val token = request.getPackage().getHeader().getCookie(Core.getRtConfig().rtSessionConfig.sessionKey)
+        val shiroToken = request.getPackage().getSession().getAttribute("shiro_token") as? ShiroToken ?: throw ShiroException("no valid token")
+
+        val token = request.getPackage().getHeader().getCookie(ShiroUtils.SHIRO_TOKEN)
 
         if (shiroToken.authenticationInfo.token!=token){
             throw ShiroException("invalid user")
