@@ -12,8 +12,8 @@ import java.util.UUID
 
 @Configuration
 class Config {
-    @Bean
-    fun shiroConfig() = ShiroConfig("AA",900)
+//    @Bean
+//    fun shiroConfig() = ShiroConfig("AA",900)
 
     @Bean
     fun ishro() = object :IShiroAuth{
