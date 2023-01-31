@@ -5,17 +5,17 @@ import com.jerry.request_base.annotations.ConfigRegister
 import com.jerry.request_base.annotations.Configuration
 import com.jerry.request_base.interfaces.IConfig
 import com.jerry.request_core.Core
-import com.jerry.request_core.utils.ResponseUtils
 import com.jerry.request_core.utils.reflect.ReflectUtils
 import com.jerry.request_shiro.shiro.ShiroUtils
 import com.jerry.request_shiro.shiro.anno.ShiroPermission
 import com.jerry.request_shiro.shiro.anno.ShiroRole
+import com.jerry.request_shiro.shiro.config.ShiroConfig
 import com.jerry.request_shiro.shiro.exception.ShiroException
 import com.jerry.request_shiro.shiro.interfaces.IShiroAuth
-import com.jerry.request_shiro.shiro.model.ShiroToken
+import com.jerry.request_shiro.shiro.model.ShiroInfo
+import com.jerry.request_shiro.shiro.utils.InnerShiroUtils
 import com.jerry.rt.core.http.pojo.Request
 import com.jerry.rt.core.http.pojo.s.IResponse
-import com.jerry.rt.core.http.protocol.RtContentType
 
 @ConfigRegister(registerClass = Any::class)
 class ShiroConfigRegister : IConfig() {
@@ -23,10 +23,13 @@ class ShiroConfigRegister : IConfig() {
         val bean = Core.getBean(IShiroAuth::class.java)
         if (bean!=null){
             ShiroUtils.iShiroAuth = bean as IShiroAuth
-            return
         }
         if (ReflectUtils.isSameClass(clazz::class.java,IShiroAuth::class.java)){
             ShiroUtils.iShiroAuth = clazz as IShiroAuth
+        }
+
+        Core.getBean(ShiroConfig::class.java)?.let {
+            ShiroUtils.shiroConfig = it as ShiroConfig
         }
     }
 
@@ -50,36 +53,36 @@ class ShiroConfigRegister : IConfig() {
             return true
         }
 
-        val shiroToken = request.getPackage().getSession().getAttribute("shiro_token") as? ShiroToken ?: throw ShiroException("no valid token")
+        val shiroInfo = request.getPackage().getSession().getAttribute(ShiroUtils.shiroConfig.tokenName) as? ShiroInfo ?: throw ShiroException("no valid token")
 
-        val token = request.getPackage().getHeader().getCookie(ShiroUtils.SHIRO_TOKEN)
+        val token = ShiroUtils.iShiroAuth.getAccessToken(request,ShiroUtils.shiroConfig.tokenName)
 
-        if (shiroToken.authenticationInfo.token!=token){
+        if (shiroInfo.authenticationInfo.token!=token){
             throw ShiroException("invalid user")
         }
-        val roles = shiroToken.authorizationInfo.getRoles()
-        val permissions = shiroToken.authorizationInfo.getPermissions()
+        val roles = shiroInfo.authorizationInfo.getRoles()
+        val permissions = shiroInfo.authorizationInfo.getPermissions()
 
         if (clazzRoleAnno!=null){
-            if (clazzRoleAnno.role.intersect(roles.toSet()).isEmpty()){
+            if (!InnerShiroUtils.isChildList(roles,clazzRoleAnno.role.toList())){
                 throw ShiroException("invalid access role")
             }
         }
 
         if (clazzPermissionAnno!=null){
-            if (clazzPermissionAnno.permission.intersect(permissions.toSet()).isEmpty()){
+            if (!InnerShiroUtils.isChildList(permissions,clazzPermissionAnno.permission.toList())){
                 throw ShiroException("invalid access permission")
             }
         }
 
         if (methodRoleAnno!=null){
-            if (methodRoleAnno.role.intersect(roles.toSet()).isEmpty()){
+            if (!InnerShiroUtils.isChildList(roles,methodRoleAnno.role.toList())){
                 throw ShiroException("invalid access role")
             }
         }
 
         if (methodPermissionAnno!=null){
-            if (methodPermissionAnno.permission.intersect(permissions.toSet()).isEmpty()){
+            if (!InnerShiroUtils.isChildList(permissions,methodPermissionAnno.permission.toList())){
                 throw ShiroException("invalid access permission")
             }
         }

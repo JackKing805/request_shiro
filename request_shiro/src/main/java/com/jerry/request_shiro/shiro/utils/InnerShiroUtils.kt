@@ -13,4 +13,13 @@ internal object InnerShiroUtils {
         }
         return map
     }
+
+    fun isChildList(parent:List<String>,child:List<String>):Boolean{
+        child.forEach {
+            if (!parent.contains(it)){
+                return false
+            }
+        }
+        return true
+    }
 }

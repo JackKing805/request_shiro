@@ -11,7 +11,7 @@ class TestApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val toMutableList = ShiroUtils.getConfigurationList().toMutableList()
+        val toMutableList = mutableListOf<Class<*>>()
         toMutableList.add(TestController::class.java)
         toMutableList.add(Config::class.java)
         toMutableList.add(ShiroExceptionHandler::class.java)
