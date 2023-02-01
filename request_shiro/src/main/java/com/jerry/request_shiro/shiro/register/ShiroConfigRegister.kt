@@ -19,17 +19,22 @@ import com.jerry.rt.core.http.pojo.s.IResponse
 
 @ConfigRegister(registerClass = Any::class)
 class ShiroConfigRegister : IConfig() {
-    override fun init(annotation: Configuration, clazz: Any) {
-        val bean = Core.getBean(IShiroAuth::class.java)
-        if (bean!=null){
-            ShiroUtils.iShiroAuth = bean as IShiroAuth
-        }
-        if (ReflectUtils.isSameClass(clazz::class.java,IShiroAuth::class.java)){
-            ShiroUtils.iShiroAuth = clazz as IShiroAuth
-        }
+    private var isF = true
 
-        Core.getBean(ShiroConfig::class.java)?.let {
-            ShiroUtils.shiroConfig = it as ShiroConfig
+    override fun init(annotation: Configuration, clazz: Any) {
+        if (isF){
+            isF = false
+            val bean = Core.getBean(IShiroAuth::class.java)
+            if (bean!=null){
+                ShiroUtils.iShiroAuth = bean as IShiroAuth
+            }
+            if (ReflectUtils.isSameClass(clazz::class.java,IShiroAuth::class.java)){
+                ShiroUtils.iShiroAuth = clazz as IShiroAuth
+            }
+
+            Core.getBean(ShiroConfig::class.java)?.let {
+                ShiroUtils.shiroConfig = it as ShiroConfig
+            }
         }
     }
 
