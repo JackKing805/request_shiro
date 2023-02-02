@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.jerry.request_shiro'
+    namespace 'com.jerry.request_shiro.main'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.jerry.request_shiro"
+        applicationId "com.jerry.request_shiro.main"
         minSdk 26
         targetSdk 33
         versionCode 1
