@@ -3,7 +3,7 @@
     <application>
         <provider
             android:authorities="${applicationId}.shiro.init"
-            android:name=".shiro.init.ShiroInit"
+            android:name="com.jerry.request_shiro.shiro.init.ShiroInit"
             android:exported="false"/>
     </application>
 </manifest>
