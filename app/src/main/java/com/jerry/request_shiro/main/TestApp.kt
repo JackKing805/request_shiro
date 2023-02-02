@@ -1,11 +1,10 @@
-package com.jerry.request_shiro
+package com.jerry.request_shiro.main
 
 import android.app.Application
 import com.jerry.request_core.Core
-import com.jerry.request_shiro.request.Config
-import com.jerry.request_shiro.request.ShiroExceptionHandler
-import com.jerry.request_shiro.request.TestController
-import com.jerry.request_shiro.shiro.ShiroUtils
+import com.jerry.request_shiro.main.request.Config
+import com.jerry.request_shiro.main.request.ShiroExceptionHandler
+import com.jerry.request_shiro.main.request.TestController
 
 class TestApp : Application() {
     override fun onCreate() {

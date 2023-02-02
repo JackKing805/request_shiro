@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'com.jerry.request_shiro'
+    namespace 'com.jerry.request_shiro.main'
     compileSdk 33
 
     defaultConfig {

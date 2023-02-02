@@ -1,4 +1,4 @@
-package com.jerry.request_shiro
+package com.jerry.request_shiro.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
