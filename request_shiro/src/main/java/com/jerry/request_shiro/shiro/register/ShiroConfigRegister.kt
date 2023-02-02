@@ -3,6 +3,7 @@ package com.jerry.request_shiro.shiro.register
 import android.content.Context
 import com.jerry.request_base.annotations.ConfigRegister
 import com.jerry.request_base.annotations.Configuration
+import com.jerry.request_base.bean.IConfigControllerMapper
 import com.jerry.request_base.interfaces.IConfig
 import com.jerry.request_core.Core
 import com.jerry.request_core.utils.reflect.ReflectUtils
@@ -15,44 +16,45 @@ import com.jerry.request_shiro.shiro.interfaces.IShiroAuth
 import com.jerry.request_shiro.shiro.model.ShiroInfo
 import com.jerry.request_shiro.shiro.utils.InnerShiroUtils
 import com.jerry.rt.core.http.pojo.Request
-import com.jerry.rt.core.http.pojo.s.IResponse
+import com.jerry.rt.core.http.pojo.Response
 
-@ConfigRegister(registerClass = Any::class)
+@ConfigRegister(registerClass = IShiroAuth::class)
 class ShiroConfigRegister : IConfig() {
-    private var isF = true
 
     override fun init(annotation: Configuration, clazz: Any) {
-        if (isF){
-            isF = false
-            val bean = Core.getBean(IShiroAuth::class.java)
-            if (bean!=null){
-                ShiroUtils.iShiroAuth = bean as IShiroAuth
-            }
-            if (ReflectUtils.isSameClass(clazz::class.java,IShiroAuth::class.java)){
-                ShiroUtils.iShiroAuth = clazz as IShiroAuth
-            }
+        ShiroUtils.iShiroAuth = clazz as IShiroAuth
+    }
 
-            Core.getBean(ShiroConfig::class.java)?.let {
-                ShiroUtils.shiroConfig = it as ShiroConfig
-            }
+    override fun onCreate() {
+        val bean = Core.getBean(IShiroAuth::class.java)
+        if (bean!=null){
+            ShiroUtils.iShiroAuth = bean as IShiroAuth
+        }
+
+        Core.getBean(ShiroConfig::class.java)?.let {
+            ShiroUtils.shiroConfig = it as ShiroConfig
         }
     }
 
-    override fun onRequest(
+    override fun onRequestEnd(context: Context, request: Request, response: Response): Boolean {
+        return true
+    }
+
+    override fun onRequestPre(
         context: Context,
         request: Request,
-        response: IResponse,
-        controllerMapper: ControllerMapper?
+        response: Response,
+        IConfigControllerMapper: IConfigControllerMapper?
     ): Boolean {
-        if (controllerMapper==null){
+        if (IConfigControllerMapper==null){
             return true
         }
 
-        val clazzRoleAnno = ReflectUtils.getAnnotation(controllerMapper.instance.javaClass, ShiroRole::class.java)
-        val clazzPermissionAnno = ReflectUtils.getAnnotation(controllerMapper.instance.javaClass,ShiroPermission::class.java)
+        val clazzRoleAnno = ReflectUtils.getAnnotation(IConfigControllerMapper.instance.javaClass, ShiroRole::class.java)
+        val clazzPermissionAnno = ReflectUtils.getAnnotation(IConfigControllerMapper.instance.javaClass,ShiroPermission::class.java)
 
-        val methodRoleAnno = ReflectUtils.getAnnotation(controllerMapper.method,ShiroRole::class.java)
-        val methodPermissionAnno = ReflectUtils.getAnnotation(controllerMapper.method,ShiroPermission::class.java)
+        val methodRoleAnno = ReflectUtils.getAnnotation(IConfigControllerMapper.method,ShiroRole::class.java)
+        val methodPermissionAnno = ReflectUtils.getAnnotation(IConfigControllerMapper.method,ShiroPermission::class.java)
 
         if (clazzRoleAnno==null && clazzPermissionAnno == null && methodRoleAnno == null && methodPermissionAnno==null){
             return true
