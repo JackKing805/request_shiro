@@ -17,7 +17,7 @@ class TestController {
         return ShiroUtils.login(SimpleUserLogin(request,response,"AA","BB"))
     }
 
-    @ShiroRole(["user"])
+    @ShiroRole(["user","a","b","c"])
     @ShiroPermission(["add","delete"])
     @Controller("/rp")
     fun onRolePermission(request: Request,response: Response):String{

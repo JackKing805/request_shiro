@@ -3,7 +3,7 @@ package com.jerry.request_shiro.shiro.core
 import com.jerry.request_shiro.shiro.utils.IdGenerator
 import com.jerry.request_shiro.shiro.utils.InnerShiroUtils
 import com.jerry.rt.bean.RtSessionConfig
-import com.jerry.rt.core.Context
+import com.jerry.rt.core.RtContext
 import com.jerry.rt.core.http.interfaces.ISession
 import com.jerry.rt.core.http.interfaces.ISessionManager
 import com.jerry.rt.core.http.pojo.ProtocolPackage
@@ -60,12 +60,12 @@ class ShiroSessionManager:ISessionManager {
     }
 
     override fun getSessionKey(
-        context: Context,
+        rtContext: RtContext,
         path: String,
         uri: URI,
         header: ProtocolPackage.Header
     ): String? {
-        return header.getCookie(context.getRtConfig().rtSessionConfig.sessionKey) ?: return InnerShiroUtils.parameterToArray(uri)[context.getRtConfig().rtSessionConfig.sessionKey]
+        return header.getCookie(rtContext.getRtConfig().rtSessionConfig.sessionKey) ?: return InnerShiroUtils.parameterToArray(uri)[rtContext.getRtConfig().rtSessionConfig.sessionKey]
     }
 
     override fun removeSession(session: ISession) {

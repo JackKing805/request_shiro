@@ -38,8 +38,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0'
 
 
-    implementation 'com.github.JackKing805:RtCore:0.2.9'
-    implementation 'com.github.JackKing805:request_base:0.1.1'
-    implementation 'com.github.JackKing805:request_core:0.2.7'
+    implementation 'com.github.JackKing805:RtCore:0.3.2'
+    implementation 'com.github.JackKing805:request_base:0.1.2'
+    implementation 'com.github.JackKing805:request_core:0.2.9'
     implementation project(path: ':request_shiro')
 }

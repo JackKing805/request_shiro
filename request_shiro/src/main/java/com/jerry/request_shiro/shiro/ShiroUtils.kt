@@ -1,7 +1,7 @@
 package com.jerry.request_shiro.shiro
 
 import com.jerry.request_shiro.shiro.config.ShiroConfig
-import com.jerry.request_shiro.shiro.exception.ShiroException
+import com.jerry.request_shiro.shiro.exception.ShiroAuthException
 import com.jerry.request_shiro.shiro.interfaces.IShiroAuth
 import com.jerry.request_shiro.shiro.interfaces.UserLoginToken
 import com.jerry.request_shiro.shiro.model.*
@@ -45,5 +45,5 @@ object ShiroUtils {
         session.removeAttribute(shiroConfig.tokenName)
     }
 
-    fun getShiroInfo(request: Request) = request.getPackage().getSession().getAttribute(shiroConfig.tokenName) as? ShiroInfo ?: throw ShiroException("no valid token")
+    fun getShiroInfo(request: Request) = request.getPackage().getSession().getAttribute(shiroConfig.tokenName) as? ShiroInfo ?: throw ShiroAuthException("no valid token")
 }

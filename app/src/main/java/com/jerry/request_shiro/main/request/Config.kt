@@ -26,6 +26,9 @@ class Config {
             val au = AuthorizationInfo()
             Log.e("ADSAD","onAuthorization")
             au.setRole("user")
+            au.setRole("a")
+            au.setRole("b")
+            au.setRole("c")
             au.setPermission("add")
             au.setPermission("delete")
             return au
