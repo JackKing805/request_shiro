@@ -17,11 +17,12 @@ class TestController {
         return ShiroUtils.login(SimpleUserLogin(request,response,"AA","BB"))
     }
 
-    @ShiroRole(["user","a","b","c"])
-    @ShiroPermission(["add","delete"])
+//    @ShiroRole(["user","a","b","c"])
+//    @ShiroPermission(["add","delete"])
     @Controller("/rp")
     fun onRolePermission(request: Request,response: Response):String{
         Log.e("ADSAD","onRoot:${request.getPackage().getSession().getId()}")
+        ShiroUtils.verify(request, listOf("user","a","b","c"), listOf("add","delete"))
         return "success"
     }
 }

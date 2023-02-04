@@ -13,18 +13,18 @@ import com.jerry.request_shiro.shiro.anno.ShiroPermission
 import com.jerry.request_shiro.shiro.anno.ShiroRole
 import com.jerry.request_shiro.shiro.config.ShiroConfig
 import com.jerry.request_shiro.shiro.core.ShiroSessionManager
-import com.jerry.request_shiro.shiro.exception.ShiroAuthException
 import com.jerry.request_shiro.shiro.exception.ShiroPermissionException
 import com.jerry.request_shiro.shiro.exception.ShiroRoleException
-import com.jerry.request_shiro.shiro.impl.ShiroCacheManager
+import com.jerry.request_shiro.shiro.exception.ShiroVerifyException
 import com.jerry.request_shiro.shiro.interfaces.IShiroAuth
-import com.jerry.request_shiro.shiro.interfaces.IShiroCache
 import com.jerry.request_shiro.shiro.interfaces.IShiroCacheManager
 import com.jerry.request_shiro.shiro.model.ShiroInfo
 import com.jerry.request_shiro.shiro.utils.InnerShiroUtils
 import com.jerry.rt.bean.RtSessionConfig
+import com.jerry.rt.core.http.pojo.Cookie
 import com.jerry.rt.core.http.pojo.Request
 import com.jerry.rt.core.http.pojo.Response
+import java.util.*
 
 @ConfigRegister(registerClass = IShiroAuth::class)
 class ShiroConfigRegister : IConfig() {
@@ -78,8 +78,15 @@ class ShiroConfigRegister : IConfig() {
             return true
         }
 
-        val token = ShiroUtils.iShiroAuth.getAccessToken(request,ShiroUtils.shiroConfig.tokenName) ?: throw ShiroAuthException("token is invalid")
-        val shiroInfo = ShiroUtils.cacheManager.getCache(token)?.getValue(ShiroUtils.shiroConfig.tokenName, null) as? ShiroInfo ?:throw ShiroAuthException("no valid auth info")
+        val token = ShiroUtils.iShiroAuth.getAccessToken(request,ShiroUtils.shiroConfig.tokenName) ?: throw ShiroVerifyException("user token is invalid")
+        val shiroCache = ShiroUtils.cacheManager.getCache(token) ?: throw ShiroVerifyException("token is invalid")
+
+        //刷新token时间
+        val expires = Date(System.currentTimeMillis() + ShiroUtils.shiroConfig.validTime*1000)
+        response.addCookie(Cookie(ShiroUtils.shiroConfig.tokenName, value = shiroCache.getID(), expires =expires, path = "/"))
+        shiroCache.setExpires(expires)
+
+        val shiroInfo =  shiroCache.getValue(ShiroUtils.shiroConfig.tokenName, null) as? ShiroInfo ?:throw ShiroVerifyException("no valid auth info")
 
         val roles = shiroInfo.authorizationInfo.getRoles()
         val permissions = shiroInfo.authorizationInfo.getPermissions()
@@ -107,7 +114,6 @@ class ShiroConfigRegister : IConfig() {
                 throw ShiroPermissionException(*methodPermissionAnno.permission.subtract(permissions.toSet()).toTypedArray())
             }
         }
-
         return true
     }
 

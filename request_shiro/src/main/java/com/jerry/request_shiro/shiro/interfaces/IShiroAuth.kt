@@ -9,7 +9,7 @@ import com.jerry.rt.core.http.pojo.Request
 
 interface IShiroAuth {
     //认证,返回token
-    fun onAuthentication(authToken: AuthToken): AuthenticationInfo
+    fun onAuthentication(authToken: AuthToken): AuthenticationInfo?
 
     //授权
     fun onAuthorization(authorization: AuthenticationInfo):AuthorizationInfo

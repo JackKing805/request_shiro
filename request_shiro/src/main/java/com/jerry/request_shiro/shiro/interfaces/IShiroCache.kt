@@ -1,6 +1,7 @@
 package com.jerry.request_shiro.shiro.interfaces
 
 import java.util.Date
+import kotlin.math.max
 
 open class IShiroCache {
     private val map = mutableMapOf<String, Any?>()
@@ -20,23 +21,29 @@ open class IShiroCache {
         expiresTime = date
     }
 
+    open fun getExpires() = expiresTime
+
     //设置从当前时间开始最长存活时间
     open fun setMaxAge(mill:Long){
         maxAge = mill
     }
 
+    fun getMaxAge() = maxAge
+
     open fun isValid():Boolean{
         if (expiresTime != null) {
             val now = Date()
-            val result = now.compareTo(expiresTime!!)
+            val result = expiresTime!!.compareTo(now)
             if (result == -1) {
                 return false
             }
         }
 
         if (maxAge != -1L) {
-            val now = System.currentTimeMillis()
-            if (createTime + maxAge < now) {
+            val now = Date()
+            val old = Date(createTime + maxAge)
+            val result = old.compareTo(now)
+            if (result == -1) {
                 return false
             }
         }

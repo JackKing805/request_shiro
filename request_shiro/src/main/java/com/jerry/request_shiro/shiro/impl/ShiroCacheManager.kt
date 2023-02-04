@@ -9,9 +9,11 @@ class ShiroCacheManager : IShiroCacheManager {
 
     override fun addCache(cache: IShiroCache) {
         synchronized(lock) {
-            cacheList.find { it.getID() == cache.getID() }?.let {
-                cacheList.add(cache)
+            val old = cacheList.find { it.getID() == cache.getID() }
+            if (old!=null){
+                cacheList.remove(old)
             }
+            cacheList.add(cache)
         }
     }
 
@@ -38,7 +40,7 @@ class ShiroCacheManager : IShiroCacheManager {
     }
 
     override fun listOf(): List<IShiroCache> {
-        return cacheList.toList()
+        return cacheList.filter { it.isValid() }.toList()
     }
 
     override fun clear() {
