@@ -9,7 +9,9 @@ class ShiroCacheManager : IShiroCacheManager {
 
     override fun addCache(cache: IShiroCache) {
         synchronized(lock) {
-            cacheList.add(cache)
+            cacheList.find { it.getID() == cache.getID() }?.let {
+                cacheList.add(cache)
+            }
         }
     }
 
