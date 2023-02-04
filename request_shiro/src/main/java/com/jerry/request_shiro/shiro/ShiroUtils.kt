@@ -11,6 +11,7 @@ import com.jerry.request_shiro.shiro.interfaces.UserLoginToken
 import com.jerry.request_shiro.shiro.model.*
 import com.jerry.rt.core.http.pojo.Cookie
 import com.jerry.rt.core.http.pojo.Request
+import com.jerry.rt.core.http.pojo.Response
 import java.util.UUID
 
 /**
@@ -34,12 +35,9 @@ object ShiroUtils {
 
 
     fun login(userLoginToken: UserLoginToken):String{
-        val token = iShiroAuth.getAccessToken(userLoginToken.getRequest(), shiroConfig.tokenName)
-        if (token!=null){
-            val shiroInfo = cacheManager.getCache(token)?.getValue(shiroConfig.tokenName, null) as? ShiroInfo
-            if (shiroInfo!=null){
-                return shiroInfo.authenticationInfo.token
-            }
+        val shiroInfo = getShiroInfo(userLoginToken.getRequest())
+        if (shiroInfo!=null){
+            return shiroInfo.authenticationInfo.token
         }
 
         val onAuthentication = iShiroAuth.onAuthentication(AuthToken(userLoginToken.getUserName(),userLoginToken.getPassword()))
@@ -56,10 +54,25 @@ object ShiroUtils {
         return onAuthentication.token
     }
 
-    fun logout(request: Request){
-        val session = request.getPackage().getSession()
-        session.removeAttribute(shiroConfig.tokenName)
+    fun logout(request: Request,response: Response){
+        val token = iShiroAuth.getAccessToken(request, shiroConfig.tokenName)
+        if (token!=null){
+            val cache = cacheManager.getCache(token)
+            if (cache!=null){
+                cacheManager.removeCache(cache)
+            }
+            response.addCookie(Cookie(shiroConfig.tokenName, value = "", maxAge = 0, path = "/"))
+        }
     }
 
-    fun getShiroInfo(request: Request) = request.getPackage().getSession().getAttribute(shiroConfig.tokenName) as? ShiroInfo ?: throw ShiroAuthException("no valid token")
+    fun getShiroInfo(request: Request) :ShiroInfo?{
+        val token = iShiroAuth.getAccessToken(request, shiroConfig.tokenName)
+        if (token!=null){
+            val shiroInfo = cacheManager.getCache(token)?.getValue(shiroConfig.tokenName, null) as? ShiroInfo
+            if (shiroInfo!=null){
+                return shiroInfo
+            }
+        }
+        return null
+    }
 }

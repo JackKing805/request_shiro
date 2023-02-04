@@ -24,8 +24,12 @@ class ShiroCacheManager : IShiroCacheManager {
             cacheList.find { it.getID() == id }
         }
 
-        if (c != null && c.isValid()) {
-            return c
+        if (c != null) {
+            if (c.isValid()){
+                return c
+            }else{
+                removeCache(c)
+            }
         }
 
         return null
