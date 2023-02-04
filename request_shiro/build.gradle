@@ -46,7 +46,7 @@ afterEvaluate {
                 from components.release
                 groupId = "com.jerry"
                 artifactId = "request-shiro"
-                version = "0.0.6"
+                version = "0.0.7"
             }
         }
     }

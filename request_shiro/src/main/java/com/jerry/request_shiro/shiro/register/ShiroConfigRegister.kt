@@ -16,7 +16,10 @@ import com.jerry.request_shiro.shiro.core.ShiroSessionManager
 import com.jerry.request_shiro.shiro.exception.ShiroAuthException
 import com.jerry.request_shiro.shiro.exception.ShiroPermissionException
 import com.jerry.request_shiro.shiro.exception.ShiroRoleException
+import com.jerry.request_shiro.shiro.impl.ShiroCacheManager
 import com.jerry.request_shiro.shiro.interfaces.IShiroAuth
+import com.jerry.request_shiro.shiro.interfaces.IShiroCache
+import com.jerry.request_shiro.shiro.interfaces.IShiroCacheManager
 import com.jerry.request_shiro.shiro.model.ShiroInfo
 import com.jerry.request_shiro.shiro.utils.InnerShiroUtils
 import com.jerry.rt.bean.RtSessionConfig
@@ -45,6 +48,10 @@ class ShiroConfigRegister : IConfig() {
         Core.getBean(ShiroConfig::class.java)?.let {
             ShiroUtils.shiroConfig = it as ShiroConfig
         }
+
+        Core.getBean(IShiroCacheManager::class.java)?.let {
+            ShiroUtils.cacheManager = it as IShiroCacheManager
+        }
     }
 
     override fun onRequestEnd(context: Context, request: Request, response: Response): Boolean {
@@ -71,13 +78,9 @@ class ShiroConfigRegister : IConfig() {
             return true
         }
 
-        val shiroInfo = request.getPackage().getSession().getAttribute(ShiroUtils.shiroConfig.tokenName) as? ShiroInfo ?: throw ShiroAuthException("no valid token")
+        val token = ShiroUtils.iShiroAuth.getAccessToken(request,ShiroUtils.shiroConfig.tokenName) ?: throw ShiroAuthException("token is invalid")
+        val shiroInfo = ShiroUtils.cacheManager.getCache(token)?.getValue(ShiroUtils.shiroConfig.tokenName, null) as? ShiroInfo ?:throw ShiroAuthException("no valid auth info")
 
-        val token = ShiroUtils.iShiroAuth.getAccessToken(request,ShiroUtils.shiroConfig.tokenName)
-
-        if (shiroInfo.authenticationInfo.token!=token){
-            throw ShiroAuthException("invalid user")
-        }
         val roles = shiroInfo.authorizationInfo.getRoles()
         val permissions = shiroInfo.authorizationInfo.getPermissions()
 
