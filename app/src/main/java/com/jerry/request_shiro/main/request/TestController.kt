@@ -21,8 +21,9 @@ class TestController {
 //    @ShiroPermission(["add","delete"])
     @Controller("/rp")
     fun onRolePermission(request: Request,response: Response):String{
-        Log.e("ADSAD","onRoot:${request.getPackage().getSession().getId()}")
+    val authInfo = ShiroUtils.getAuthInfo(request)
+    Log.e("ADSAD","onRoot:${request.getPackage().getSession().getId()}")
         ShiroUtils.verify(request, listOf("user","a","b","c"), listOf("add","delete"))
-        return "success"
+        return authInfo.toString()
     }
 }
