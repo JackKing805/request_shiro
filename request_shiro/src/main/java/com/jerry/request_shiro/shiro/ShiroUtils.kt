@@ -45,11 +45,13 @@ object ShiroUtils {
         val onAuthentication = iShiroAuth.onAuthentication(AuthToken(userLoginToken.getUserName(),userLoginToken.getPassword()))
         val onAuthorization = iShiroAuth.onAuthorization(onAuthentication)
 
-        cacheManager.addCache(IShiroCache().apply {
+        val newCache = shiroConfig.cacheType.newInstance().apply {
             setId(onAuthentication.token)
             setMaxAge(shiroConfig.validTime*1000L)
             putValue(shiroConfig.tokenName,ShiroInfo(onAuthorization,onAuthentication))
-        })
+        }
+
+        cacheManager.addCache(newCache)
         userLoginToken.getResponse().addCookie(Cookie(shiroConfig.tokenName, value = onAuthentication.token, maxAge = shiroConfig.validTime, path = "/"))
         return onAuthentication.token
     }
