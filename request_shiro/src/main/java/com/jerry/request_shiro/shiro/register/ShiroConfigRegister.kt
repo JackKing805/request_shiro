@@ -11,6 +11,7 @@ import com.jerry.request_core.utils.reflect.ReflectUtils
 import com.jerry.request_shiro.shiro.ShiroUtils
 import com.jerry.request_shiro.shiro.anno.ShiroPermission
 import com.jerry.request_shiro.shiro.anno.ShiroRole
+import com.jerry.request_shiro.shiro.bean.ShiroLogic
 import com.jerry.request_shiro.shiro.config.ShiroConfig
 import com.jerry.request_shiro.shiro.core.ShiroSessionManager
 import com.jerry.request_shiro.shiro.exception.ShiroPermissionException
@@ -91,27 +92,63 @@ class ShiroConfigRegister : IConfig() {
         val roles = shiroInfo.authorizationInfo.getRoles()
         val permissions = shiroInfo.authorizationInfo.getPermissions()
 
-        if (clazzRoleAnno!=null){
-            if (!InnerShiroUtils.isChildList(roles,clazzRoleAnno.role.toList())){
-                throw ShiroRoleException(*clazzRoleAnno.role.subtract(roles.toSet()).toTypedArray())
+        if (clazzRoleAnno!=null && clazzRoleAnno.roles.isNotEmpty()){
+            when(clazzRoleAnno.logic){
+                ShiroLogic.AND -> {
+                    if (!InnerShiroUtils.isChildList(roles,clazzRoleAnno.roles.toList())){
+                        throw ShiroRoleException(*clazzRoleAnno.roles.subtract(roles.toSet()).toTypedArray())
+                    }
+                }
+                ShiroLogic.OR -> {
+                    if (clazzRoleAnno.roles.intersect(roles.toSet()).isEmpty()){
+                        throw ShiroRoleException(*clazzRoleAnno.roles.subtract(roles.toSet()).toTypedArray())
+                    }
+                }
             }
         }
 
-        if (clazzPermissionAnno!=null){
-            if (!InnerShiroUtils.isChildList(permissions,clazzPermissionAnno.permission.toList())){
-                throw ShiroPermissionException(*clazzPermissionAnno.permission.subtract(permissions.toSet()).toTypedArray())
+        if (clazzPermissionAnno!=null && clazzPermissionAnno.permissions.isNotEmpty()){
+            when(clazzPermissionAnno.logic){
+                ShiroLogic.AND -> {
+                    if (!InnerShiroUtils.isChildList(permissions,clazzPermissionAnno.permissions.toList())){
+                        throw ShiroPermissionException(*clazzPermissionAnno.permissions.subtract(permissions.toSet()).toTypedArray())
+                    }
+                }
+                ShiroLogic.OR -> {
+                    if (clazzPermissionAnno.permissions.intersect(permissions.toSet()).isEmpty()){
+                        throw ShiroPermissionException(*clazzPermissionAnno.permissions.subtract(permissions.toSet()).toTypedArray())
+                    }
+                }
             }
         }
 
-        if (methodRoleAnno!=null){
-            if (!InnerShiroUtils.isChildList(roles,methodRoleAnno.role.toList())){
-                throw ShiroRoleException(*methodRoleAnno.role.subtract(roles.toSet()).toTypedArray())
+        if (methodRoleAnno!=null && methodRoleAnno.roles.isNotEmpty()){
+            when(methodRoleAnno.logic){
+                ShiroLogic.AND -> {
+                    if (!InnerShiroUtils.isChildList(roles,methodRoleAnno.roles.toList())){
+                        throw ShiroRoleException(*methodRoleAnno.roles.subtract(roles.toSet()).toTypedArray())
+                    }
+                }
+                ShiroLogic.OR -> {
+                    if (methodRoleAnno.roles.intersect(roles.toSet()).isEmpty()){
+                        throw ShiroRoleException(*methodRoleAnno.roles.subtract(roles.toSet()).toTypedArray())
+                    }
+                }
             }
         }
 
-        if (methodPermissionAnno!=null){
-            if (!InnerShiroUtils.isChildList(permissions,methodPermissionAnno.permission.toList())){
-                throw ShiroPermissionException(*methodPermissionAnno.permission.subtract(permissions.toSet()).toTypedArray())
+        if (methodPermissionAnno!=null && methodPermissionAnno.permissions.isNotEmpty()){
+            when(methodPermissionAnno.logic){
+                ShiroLogic.AND -> {
+                    if (!InnerShiroUtils.isChildList(permissions,methodPermissionAnno.permissions.toList())){
+                        throw ShiroPermissionException(*methodPermissionAnno.permissions.subtract(permissions.toSet()).toTypedArray())
+                    }
+                }
+                ShiroLogic.OR -> {
+                    if(methodPermissionAnno.permissions.intersect(permissions.toSet()).isEmpty()){
+                        throw ShiroPermissionException(*methodPermissionAnno.permissions.subtract(permissions.toSet()).toTypedArray())
+                    }
+                }
             }
         }
         return true

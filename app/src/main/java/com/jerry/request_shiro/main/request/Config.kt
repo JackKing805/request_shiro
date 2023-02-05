@@ -12,24 +12,15 @@ import java.util.UUID
 
 @Configuration
 class Config {
-//    @Bean
-//    fun shiroConfig() = ShiroConfig("AA",900)
-
     @Bean
     fun ishro() = object :IShiroAuth{
         override fun onAuthentication(authToken: AuthToken): AuthenticationInfo {
-            Log.e("ADSAD","onAuthentication:${authToken}")
             return AuthenticationInfo(authToken,authToken.getPassword(),UUID.randomUUID().toString())
         }
 
         override fun onAuthorization(authorization: AuthenticationInfo): AuthorizationInfo {
             val au = AuthorizationInfo()
-            Log.e("ADSAD","onAuthorization")
-            au.setRole("user")
             au.setRole("a")
-            au.setRole("b")
-            au.setRole("c")
-            au.setPermission("add")
             au.setPermission("delete")
             return au
         }

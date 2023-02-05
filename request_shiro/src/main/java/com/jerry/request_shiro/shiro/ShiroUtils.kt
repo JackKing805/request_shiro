@@ -1,5 +1,6 @@
 package com.jerry.request_shiro.shiro
 
+import com.jerry.request_shiro.shiro.bean.ShiroLogic
 import com.jerry.request_shiro.shiro.config.ShiroConfig
 import com.jerry.request_shiro.shiro.exception.*
 import com.jerry.request_shiro.shiro.impl.ShiroCacheManager
@@ -17,6 +18,7 @@ import java.util.*
 /**
  * 如果是以token形式来进行认证的话，目前用session保存是无效，客户端一旦断开，session立马就会失效
  * 重新写一个缓存接口，使其可以自定怎么增加缓存，删除缓存，并且可以设置缓存有效期，或者定时删除缓存
+ * 权限和角色注解修改，添加判定逻辑，1.and同时都必须拥有，2.or有其中一个就行
  */
 object ShiroUtils {
     internal var shiroConfig =  ShiroConfig("shiro_token",1500)
@@ -101,26 +103,48 @@ object ShiroUtils {
         return getShiroInfo(request) ?: throw NoShiroInfoException()
     }
 
-    fun verifyRoles(request: Request,needRoles:List<String>){
+    fun verifyRoles(request: Request,needRoles:List<String>,logic:ShiroLogic = ShiroLogic.AND){
         val token = iShiroAuth.getAccessToken(request,shiroConfig.tokenName) ?: throw ShiroVerifyException("token is invalid")
         val shiroInfo = cacheManager.getCache(token)?.getValue(shiroConfig.tokenName, null) as? ShiroInfo ?:throw ShiroVerifyException("no valid auth info")
-        val roles = shiroInfo.authorizationInfo.getRoles()
-        if (!InnerShiroUtils.isChildList(roles,needRoles)){
-            throw ShiroRoleException(*needRoles.subtract(roles.toSet()).toTypedArray())
+        if (needRoles.isNotEmpty()){
+            val roles = shiroInfo.authorizationInfo.getRoles()
+            when(logic){
+                ShiroLogic.AND -> {
+                    if (!InnerShiroUtils.isChildList(roles,needRoles)){
+                        throw ShiroRoleException(*needRoles.subtract(roles.toSet()).toTypedArray())
+                    }
+                }
+                ShiroLogic.OR -> {
+                    if (roles.intersect(needRoles.toSet()).isEmpty()){
+                        throw ShiroRoleException(*needRoles.subtract(roles.toSet()).toTypedArray())
+                    }
+                }
+            }
         }
     }
 
-    fun verifyPermissions(request: Request,needPermissions:List<String>){
+    fun verifyPermissions(request: Request,needPermissions:List<String>,logic:ShiroLogic = ShiroLogic.AND){
         val token = iShiroAuth.getAccessToken(request,shiroConfig.tokenName) ?: throw ShiroVerifyException("token is invalid")
         val shiroInfo = cacheManager.getCache(token)?.getValue(shiroConfig.tokenName, null) as? ShiroInfo ?:throw ShiroVerifyException("no valid auth info")
-        val permissions = shiroInfo.authorizationInfo.getPermissions()
-        if (!InnerShiroUtils.isChildList(permissions,needPermissions)){
-            throw ShiroRoleException(*needPermissions.subtract(permissions.toSet()).toTypedArray())
+        if (needPermissions.isNotEmpty()){
+            val permissions = shiroInfo.authorizationInfo.getPermissions()
+            when(logic){
+                ShiroLogic.AND -> {
+                    if (!InnerShiroUtils.isChildList(permissions,needPermissions)){
+                        throw ShiroRoleException(*needPermissions.subtract(permissions.toSet()).toTypedArray())
+                    }
+                }
+                ShiroLogic.OR -> {
+                    if (permissions.intersect(needPermissions.toSet()).isEmpty()){
+                        throw ShiroRoleException(*needPermissions.subtract(permissions.toSet()).toTypedArray())
+                    }
+                }
+            }
         }
     }
 
-    fun verify(request: Request,needRoles: List<String>, needPermissions: List<String>){
-        verifyRoles(request,needRoles)
-        verifyPermissions(request,needPermissions)
+    fun verify(request: Request, needRoles: List<String>, needPermissions: List<String>, roleLogic: ShiroLogic=ShiroLogic.AND,permissionLogic: ShiroLogic=ShiroLogic.AND){
+        verifyRoles(request,needRoles,roleLogic)
+        verifyPermissions(request,needPermissions,permissionLogic)
     }
 }
