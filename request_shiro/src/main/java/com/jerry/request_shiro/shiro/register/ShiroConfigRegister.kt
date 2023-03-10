@@ -23,12 +23,13 @@ import com.jerry.request_shiro.shiro.model.ShiroInfo
 import com.jerry.request_shiro.shiro.utils.InnerShiroUtils
 import com.jerry.rt.bean.RtSessionConfig
 import com.jerry.rt.core.RtCore.Companion.instance
+import com.jerry.rt.core.http.Client
 import com.jerry.rt.core.http.pojo.Cookie
 import com.jerry.rt.core.http.pojo.Request
 import com.jerry.rt.core.http.pojo.Response
 import java.util.*
 
-@ConfigRegister(registerClass = IShiroAuth::class)
+@ConfigRegister(registerClass = IShiroAuth::class, priority = 0)
 class ShiroConfigRegister : IConfig() {
 
     @Bean
@@ -149,5 +150,15 @@ class ShiroConfigRegister : IConfig() {
     }
 
 
-
+    override fun onRtIn(client: Client,request: Request, response: Response): Boolean {
+        if (ShiroUtils.shiroConfig.enabledRtLoginVerify){
+            try {
+                ShiroUtils.verify(request, listOf(), listOf())
+            }catch (e:ShiroVerifyException){
+                client.close()
+                return false
+            }
+        }
+        return super.onRtIn(client,request, response)
+    }
 }
