@@ -5,6 +5,7 @@ import com.jerry.request_base.annotations.Bean
 import com.jerry.request_base.annotations.ConfigRegister
 import com.jerry.request_base.annotations.Configuration
 import com.jerry.request_base.bean.ControllerReferrer
+import com.jerry.request_base.bean.ResourceReferrer
 import com.jerry.request_base.interfaces.IConfig
 import com.jerry.request_core.Core
 import com.jerry.request_core.utils.reflect.ReflectUtils
@@ -55,6 +56,22 @@ class ShiroConfigRegister : IConfig() {
         Core.getBean(IShiroCacheManager::class.java)?.let {
             ShiroUtils.cacheManager = it as IShiroCacheManager
         }
+    }
+
+    override fun onResourceRequest(
+        context: Context,
+        request: Request,
+        response: Response,
+        resourceReferrer: ResourceReferrer
+    ): Boolean {
+        if (ShiroUtils.shiroConfig.enabledResourcesVerify){
+            try {
+                ShiroUtils.verify(request, listOf(), listOf())
+            }catch (e:ShiroVerifyException){
+                throw e
+            }
+        }
+        return super.onResourceRequest(context, request, response, resourceReferrer)
     }
 
 
