@@ -18,7 +18,6 @@ import java.util.UUID
 class Config {
     @Bean
     fun config() = ShiroConfig(
-        enabledRtLoginVerify = true,
         tokenName = "AA",
         validTime = 50000
     )
