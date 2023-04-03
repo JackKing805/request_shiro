@@ -33,7 +33,7 @@ dependencies {
     //server
     compileOnly 'com.github.JackKing805:RtCore:0.6.1'
     compileOnly 'com.github.JackKing805:request_base:0.2.0'
-    compileOnly 'com.github.JackKing805:request_core:0.4.8'
+    compileOnly 'com.github.JackKing805:request_core:0.4.9'
 
 
     implementation 'com.blankj:utilcodex:1.31.1'
@@ -46,7 +46,7 @@ afterEvaluate {
                 from components.release
                 groupId = "com.jerry"
                 artifactId = "request-shiro"
-                version = "0.1.6"
+                version = "0.1.7"
             }
         }
     }

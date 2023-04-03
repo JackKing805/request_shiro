@@ -10,6 +10,7 @@ import com.jerry.request_base.interfaces.IConfig
 import com.jerry.request_core.Core
 import com.jerry.request_core.utils.reflect.ReflectUtils
 import com.jerry.request_shiro.shiro.ShiroUtils
+import com.jerry.request_shiro.shiro.anno.ShiroLogin
 import com.jerry.request_shiro.shiro.anno.ShiroPermission
 import com.jerry.request_shiro.shiro.anno.ShiroRole
 import com.jerry.request_shiro.shiro.bean.ShiroLogic
@@ -58,22 +59,6 @@ class ShiroConfigRegister : IConfig() {
         }
     }
 
-    override fun onResourceRequest(
-        context: Context,
-        request: Request,
-        response: Response,
-        resourceReferrer: ResourceReferrer
-    ): Boolean {
-        if (ShiroUtils.shiroConfig.enabledResourcesVerify){
-            try {
-                ShiroUtils.verify(request, listOf(), listOf())
-            }catch (e:ShiroVerifyException){
-                throw e
-            }
-        }
-        return super.onResourceRequest(context, request, response, resourceReferrer)
-    }
-
 
     override fun onRequestPre(
         context: Context,
@@ -88,6 +73,11 @@ class ShiroConfigRegister : IConfig() {
         val methodPermissionAnno = ReflectUtils.getAnnotation(controllerReferrer.method,ShiroPermission::class.java)
 
         if (clazzRoleAnno==null && clazzPermissionAnno == null && methodRoleAnno == null && methodPermissionAnno==null){
+            val loginAnno = ReflectUtils.getAnnotation(controllerReferrer.instance.javaClass, ShiroLogin::class.java)
+            if (loginAnno!=null){//添加了对登陆的验证，未登陆会直接抛出移除，让请求无法直接到达controller
+                val token = ShiroUtils.iShiroAuth.getAccessToken(request,ShiroUtils.shiroConfig.tokenName) ?: throw ShiroVerifyException("user token is invalid")
+                ShiroUtils.cacheManager.getCache(token) ?: throw ShiroVerifyException("token is invalid")
+            }
             return true
         }
 
@@ -164,18 +154,5 @@ class ShiroConfigRegister : IConfig() {
             }
         }
         return true
-    }
-
-
-    override fun onRtIn(client: Client,request: Request, response: Response): Boolean {
-        if (ShiroUtils.shiroConfig.enabledRtLoginVerify){
-            try {
-                ShiroUtils.verify(request, listOf(), listOf())
-            }catch (e:ShiroVerifyException){
-                client.close()
-                return false
-            }
-        }
-        return super.onRtIn(client,request, response)
     }
 }
