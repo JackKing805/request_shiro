@@ -55,7 +55,9 @@ object ShiroUtils {
 
         val newCache = shiroConfig.cacheType.newInstance().apply {
             setId(onAuthentication.token)
-            setMaxAge(shiroConfig.validTime*1000L)
+            val expires = Date(System.currentTimeMillis() + shiroConfig.validTime*1000)
+//            setMaxAge(shiroConfig.validTime*1000L)
+            setExpires(expires)
             putValue(shiroConfig.tokenName,ShiroInfo(onAuthorization,onAuthentication))
         }
 
