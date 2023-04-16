@@ -42,7 +42,7 @@ object ShiroUtils {
         if (shiroCache!=null){
             val shiroInfo = shiroCache.getValue(shiroConfig.tokenName, null) as? ShiroInfo
             if (shiroInfo!=null){
-                val expires = Date(System.currentTimeMillis() + ShiroUtils.shiroConfig.validTime*1000)
+                val expires = Date(System.currentTimeMillis() + shiroConfig.validTime*1000)
                 userLoginToken.getResponse().addCookie(Cookie(shiroConfig.tokenName, value = shiroInfo.authenticationInfo.token, expires = expires, path = "/"))
                 shiroCache.setExpires(expires)
                 return shiroInfo.authenticationInfo.token
@@ -103,9 +103,20 @@ object ShiroUtils {
         return getShiroInfo(request) ?: throw NoShiroInfoException()
     }
 
+    private fun refreshExpires(token:String):ShiroInfo?{
+        val shiroCache = cacheManager.getCache(token)
+        return if (shiroCache!=null){
+            val expires = Date(System.currentTimeMillis() + shiroConfig.validTime*1000)
+            shiroCache.setExpires(expires)
+            shiroCache.getValue(shiroConfig.tokenName,null) as? ShiroInfo
+        }else{
+            null
+        }
+    }
+
     fun verifyRoles(request: Request,needRoles:List<String>,logic:ShiroLogic = ShiroLogic.AND){
         val token = iShiroAuth.getAccessToken(request,shiroConfig.tokenName) ?: throw ShiroVerifyException("token is invalid")
-        val shiroInfo = cacheManager.getCache(token)?.getValue(shiroConfig.tokenName, null) as? ShiroInfo ?:throw ShiroVerifyException("no valid auth info")
+        val shiroInfo = refreshExpires(token) ?:throw ShiroVerifyException("no valid auth info")
         if (needRoles.isNotEmpty()){
             val roles = shiroInfo.authorizationInfo.getRoles()
             when(logic){
@@ -125,7 +136,7 @@ object ShiroUtils {
 
     fun verifyPermissions(request: Request,needPermissions:List<String>,logic:ShiroLogic = ShiroLogic.AND){
         val token = iShiroAuth.getAccessToken(request,shiroConfig.tokenName) ?: throw ShiroVerifyException("token is invalid")
-        val shiroInfo = cacheManager.getCache(token)?.getValue(shiroConfig.tokenName, null) as? ShiroInfo ?:throw ShiroVerifyException("no valid auth info")
+        val shiroInfo = refreshExpires(token) ?:throw ShiroVerifyException("no valid auth info")
         if (needPermissions.isNotEmpty()){
             val permissions = shiroInfo.authorizationInfo.getPermissions()
             when(logic){

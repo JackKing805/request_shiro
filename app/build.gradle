@@ -40,6 +40,6 @@ dependencies {
 
     implementation 'com.github.JackKing805:RtCore:0.6.1'
     implementation 'com.github.JackKing805:request_base:0.2.0'
-    implementation 'com.github.JackKing805:request_core:0.4.8'
+    implementation 'com.github.JackKing805:request_core:0.5.0'
     implementation project(path: ':request_shiro')
 }
