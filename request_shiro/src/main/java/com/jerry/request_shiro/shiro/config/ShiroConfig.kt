@@ -6,6 +6,6 @@ import com.jerry.request_shiro.shiro.interfaces.IShiroCache
 
 data class ShiroConfig(
     val tokenName:String,//token保存的名字
-    val validTime:Int,//s
+    val validTime:Int = 60,//s
     val cacheType:Class<out IShiroCache> = ShiroCache::class.java,
 )
