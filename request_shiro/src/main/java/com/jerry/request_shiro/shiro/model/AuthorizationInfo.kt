@@ -1,8 +1,10 @@
 package com.jerry.request_shiro.shiro.model
 
+import java.io.Serializable
+
 
 //授权信息
-class AuthorizationInfo {
+class AuthorizationInfo:Serializable {
     private val roles = mutableListOf<String>()
     private val permissions = mutableListOf<String>()
 

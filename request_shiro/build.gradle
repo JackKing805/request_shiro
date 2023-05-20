@@ -24,19 +24,21 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    compileOnly 'androidx.core:core-ktx:1.9.0'
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 
     //jwt
     implementation 'com.auth0:java-jwt:4.2.2'
 
     //server
-    compileOnly 'com.github.JackKing805:RtCore:0.7.2'
-    compileOnly 'com.github.JackKing805:request_base:0.2.1'
-    compileOnly 'com.github.JackKing805:request_core:0.6.0'
-
+    compileOnly 'com.github.JackKing805:RtCore:0.7.4'
+    compileOnly 'com.github.JackKing805:request_base:0.2.2'
+    compileOnly 'com.github.JackKing805:request_core:0.6.2'
 
     implementation 'com.blankj:utilcodex:1.31.1'
+
+
+    implementation 'com.github.liangjingkanji:Serialize:3.0.1'
 }
 
 afterEvaluate {
@@ -46,7 +48,7 @@ afterEvaluate {
                 from components.release
                 groupId = "com.jerry"
                 artifactId = "request-shiro"
-                version = "0.2.0"
+                version = "0.2.1"
             }
         }
     }

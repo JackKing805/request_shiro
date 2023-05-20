@@ -1,5 +1,7 @@
 package com.jerry.request_shiro.shiro
 
+import android.annotation.SuppressLint
+import android.content.Context
 import com.jerry.request_shiro.shiro.bean.ShiroLogic
 import com.jerry.request_shiro.shiro.config.ShiroConfig
 import com.jerry.request_shiro.shiro.exception.*
@@ -20,7 +22,11 @@ import java.util.*
  * 重新写一个缓存接口，使其可以自定怎么增加缓存，删除缓存，并且可以设置缓存有效期，或者定时删除缓存
  * 权限和角色注解修改，添加判定逻辑，1.and同时都必须拥有，2.or有其中一个就行
  */
+@SuppressLint("StaticFieldLeak")
 object ShiroUtils {
+    private val SP_NAME = "shairo_session_value_sp"
+    internal lateinit var context: Context
+
     internal var shiroConfig =  ShiroConfig("shiro_token",1500)
 
     internal var iShiroAuth: IShiroAuth = object :IShiroAuth{
