@@ -31,7 +31,7 @@ import com.jerry.rt.core.http.pojo.Request
 import com.jerry.rt.core.http.pojo.Response
 import java.util.*
 
-@ConfigRegister(registerClass = IShiroAuth::class, priority = 0)
+@ConfigRegister(priority = 0, registerClass = Any::class)
 class ShiroConfigRegister : IConfig() {
 
     @Bean
@@ -40,21 +40,17 @@ class ShiroConfigRegister : IConfig() {
         sessionClazz = ShiroSessionManager::class.java
     )
 
-    override fun init(annotation: Configuration, clazz: Any) {
-        ShiroUtils.iShiroAuth = clazz as IShiroAuth
-    }
-
     override fun onCreate() {
-        val bean = Core.getBean(IShiroAuth::class.java)
-        if (bean!=null){
-            ShiroUtils.iShiroAuth = bean as IShiroAuth
-        }
-
         Core.getBean(ShiroConfig::class.java)?.let {
             ShiroUtils.shiroConfig = it as ShiroConfig
         }
 
-        Core.getBean(IShiroCacheManager::class.java)?.let {
+
+        val shiroConfig = ShiroUtils.shiroConfig
+        Core.getBean(shiroConfig.authInter)?.let {
+            ShiroUtils.iShiroAuth = it as IShiroAuth
+        }
+        Core.getBean(shiroConfig.cacheManagerType)?.let {
             ShiroUtils.cacheManager = it as IShiroCacheManager
         }
     }
